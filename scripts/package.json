@@ -14,7 +14,9 @@
     "deepbook:seed": "tsx src/deepbook/seed.ts",
     "deepbook:book": "tsx src/deepbook/showBook.ts",
     "walrus:snapshot": "tsx src/walrus/snapshot.ts",
-    "walrus:keeper": "tsx src/walrus/keeper.ts"
+    "walrus:keeper": "tsx src/walrus/keeper.ts",
+    "deepbook:get-deep": "tsx src/deepbook/getDeep.ts",
+    "deepbook:demo": "tsx src/deepbook/demoTrade.ts"
   },
   "dependencies": {
     "@mysten/deepbook-v3": "^1.4.1",

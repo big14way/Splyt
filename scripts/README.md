@@ -57,6 +57,20 @@ npm run deepbook:book
 
 Credit demo yield any time with `npm run accrue` (set `ACCRUE_AMOUNT_BASE`).
 
+### Verify the trade path live (no PT/YT pools needed)
+
+Because our pools can't be created on testnet (DEEP fee), prove the trade helpers
+end-to-end against an existing pool instead — identical code, different pool:
+
+```bash
+npm run deepbook:get-deep   # swap ~1 SUI -> DEEP on the whitelisted DEEP_SUI pool
+npm run deepbook:demo       # deposit -> placeOrder -> getOrderBook -> cancelOrder on DEEP_SUI
+```
+
+`deepbook:demo` places a real maker sell order via `trade.ts` `placeOrder`,
+confirms it shows in `getOrderBook`, then cancels it with `cancelOrder` — the same
+functions the frontend uses.
+
 Each step is idempotent where it matters (pools and the balance manager are
 created once and cached in `deployment.json`).
 
@@ -115,6 +129,8 @@ src/
     mint.ts         # npm run deepbook:mint
     seed.ts         # npm run deepbook:seed
     showBook.ts     # npm run deepbook:book
+    getDeep.ts      # npm run deepbook:get-deep (swap SUI -> DEEP)
+    demoTrade.ts    # npm run deepbook:demo (live trade-path proof on DEEP_SUI)
     trade.ts        # frontend handoff: placeOrder / cancelOrder / getOrderBook
   walrus/
     walrus.ts       # storeBlob / readBlob / aggregatorUrl (HTTP)

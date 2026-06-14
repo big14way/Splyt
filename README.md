@@ -104,14 +104,16 @@ Live and verified on-chain: `split`/`combine`/`accrue`, the `market::*` views, a
 the Walrus yield history (blob id committed on-chain via `set_yield_history_blob`,
 content fetchable from the aggregator). The keeper is running snapshots.
 
-**DeepBook pools are not yet created.** Permissionless pool creation costs a fixed
-**500 DEEP per pool** (asserted exactly, on-chain), and testnet DEEP is scarce —
-it is not mintable and the `DEEP_SUI` pool holds only ~20 DEEP, so the 1000 DEEP
-for both pools can't be sourced on testnet right now. The listing scripts are
-written, type-checked, and the read path (`getOrderBook`) is verified against live
-DeepBook pools. Once DEEP is available (a DeepBook testnet grant, or on mainnet),
-create and seed them — note the npm scripts live in `scripts/`, so run them from
-there and prefix each with `npm run`:
+**DeepBook trade integration is verified live; our own PT/YT pools aren't created
+yet.** The full trade path — deposit → `placeOrder` → `getOrderBook` → `cancelOrder`,
+the exact helpers the frontend imports — is proven end-to-end against a live pool
+(`npm run deepbook:demo`: places and cancels a real maker order on DEEP_SUI). What
+is blocked is *creating* the PT/USDC + YT/USDC pools: permissionless creation costs
+a fixed **500 DEEP per pool** (asserted exactly, on-chain), and testnet DEEP is
+scarce — not mintable, and the DEEP pools hold only ~20 each, so the 1000 DEEP for
+both pools can't be sourced on testnet. Once DEEP is available (a DeepBook testnet
+grant, or on mainnet), create and seed them — the npm scripts live in `scripts/`,
+so run them from there and prefix each with `npm run`:
 
 ```bash
 cd scripts
