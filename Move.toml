@@ -1,0 +1,15 @@
+[package]
+name = "splyt"
+edition = "2024"
+
+# OpenZeppelin Contracts for Sui: DeFi Math Library (overflow-safe mul_div etc).
+# This is a genuine dependency, used in market::redeem_yt for the pro-rata YT payout.
+[dependencies]
+openzeppelin_math = { git = "https://github.com/OpenZeppelin/contracts-sui.git", subdir = "math/core", rev = "v1.1.0" }
+
+# If your local toolchain does not resolve the Sui system package implicitly,
+# uncomment and align the rev with your installed Sui CLI:
+# Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/testnet" }
+
+[addresses]
+splyt = "0x0"

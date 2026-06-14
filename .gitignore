@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+
+# Local agent/editor state
+.claude/
+
+# Move build output
+build/
+
+# Node (scripts/)
+node_modules/
+.env
+deployment.json
+*.log
