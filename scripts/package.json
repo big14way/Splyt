@@ -1,0 +1,27 @@
+{
+  "name": "splyt-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Off-chain scripts for Splyt: DeepBook listing/seed/trade and the Walrus yield-curve writer.",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "deepbook:pools": "tsx src/deepbook/createPools.ts",
+    "deepbook:mint": "tsx src/deepbook/mint.ts",
+    "deepbook:seed": "tsx src/deepbook/seed.ts",
+    "deepbook:book": "tsx src/deepbook/showBook.ts",
+    "walrus:snapshot": "tsx src/walrus/snapshot.ts",
+    "walrus:keeper": "tsx src/walrus/keeper.ts"
+  },
+  "dependencies": {
+    "@mysten/deepbook-v3": "^1.4.1",
+    "@mysten/sui": "^2.17.0",
+    "@mysten/walrus": "^1.1.7",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.7.0"
+  }
+}

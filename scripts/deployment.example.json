@@ -1,0 +1,18 @@
+{
+  "network": "testnet",
+  "packageId": "0xPACKAGE_FROM_SUI_PUBLISH",
+  "marketId": "0xSHARED_MARKET_OBJECT",
+  "adminCapId": "0xADMIN_CAP",
+  "underlyingType": "0xUSDC_PKG::usdc::USDC",
+  "ptType": "0xPACKAGE_FROM_SUI_PUBLISH::pt::PT",
+  "ytType": "0xPACKAGE_FROM_SUI_PUBLISH::yt::YT",
+  "ptDecimals": 9,
+  "ytDecimals": 9,
+  "quoteCoinKey": "DBUSDC",
+  "pools": {
+    "PT_USDC": "0xPT_POOL",
+    "YT_USDC": "0xYT_POOL"
+  },
+  "balanceManagerId": "0xSEEDER_BALANCE_MANAGER",
+  "yieldHistoryBlobId": "WALRUS_BLOB_ID"
+}
