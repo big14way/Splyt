@@ -88,14 +88,15 @@ sui client call \
 
 ## Live testnet deployment
 
-Current deployment the frontend integrates against (network: **testnet**, `<U> = 0x2::sui::SUI`):
+Current deployment the frontend integrates against (network: **testnet**,
+`<U> = 0x2::sui::SUI`, maturity ~30 days out so the market stays Active):
 
 | What | Id |
 |---|---|
-| Package (`PKG`) | `0xe0ad60d2540ab6fedd51d04817c44c9fe37cc0483e0026687fc07b85eb33ab11` |
-| Market (`MARKET`) | `0xe82e58af575fc122287bc1b9fde81fff0de86bca7b292f0198206861e02dd46d` |
-| AdminCap | `0x466bf089ce66d072c1955622da5bfb8e63556f13b822adfa3ccc64646d88f154` |
-| Seeder BalanceManager | `0x51f0c029ee3e97b634cebb6cda55e490b324d4d636056d826bf0719aa57435f3` |
+| Package (`PKG`) | `0x78c280c277302119e0cd24f0622ded914103a51af4c96f6265f55a6283c3778c` |
+| Market (`MARKET`) | `0x400184f76d19eb0a726af4079da37f22b0f7f5dd81f6b92a53deffdb74bfced0` |
+| AdminCap | `0x5f621c34130172f80b0e139656e4f4599cb2b3c66b2fe6fbd6b97ba3d630eccb` |
+| Seeder BalanceManager | `0x7497d0b34f4804d2abae94618e196ae01d0062d71b17da0ab1b925ebe7f32373` |
 | PT type | `PKG::pt::PT` · YT type `PKG::yt::YT` (both 9 decimals) |
 | Yield history (Walrus) | read the `yield_history_blob` view on the Market, then fetch `AGGREGATOR/v1/blobs/<id>` |
 
