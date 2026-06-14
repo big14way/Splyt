@@ -110,7 +110,16 @@ it is not mintable and the `DEEP_SUI` pool holds only ~20 DEEP, so the 1000 DEEP
 for both pools can't be sourced on testnet right now. The listing scripts are
 written, type-checked, and the read path (`getOrderBook`) is verified against live
 DeepBook pools. Once DEEP is available (a DeepBook testnet grant, or on mainnet),
-`npm run deepbook:pools && deepbook:mint && deepbook:seed` creates and seeds them.
+create and seed them — note the npm scripts live in `scripts/`, so run them from
+there and prefix each with `npm run`:
+
+```bash
+cd scripts
+npm run deepbook:bm      # BalanceManager (needs no DEEP — works today)
+npm run deepbook:pools   # PT/USDC + YT/USDC pools (needs DEEP)
+npm run deepbook:mint    # mint PT/YT inventory
+npm run deepbook:seed    # deposit + maker orders
+```
 
 ## Demo flow
 

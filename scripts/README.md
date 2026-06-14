@@ -36,6 +36,8 @@ trade fees) and some **quote** (DBUSDC). Mint PT/YT inventory from the market.
 > and work today; on mainnet DEEP is liquid and the full flow runs end to end.
 
 ```bash
+cd scripts   # all npm run commands below are from the scripts/ directory
+
 # 0) create the seeder BalanceManager (no DEEP needed — works today)
 npm run deepbook:bm
 
