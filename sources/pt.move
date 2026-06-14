@@ -11,6 +11,11 @@ use sui::coin;
 /// One-time witness. Must match the module name in uppercase.
 public struct PT has drop {}
 
+// `coin::create_currency` is the stable, widely-supported way to mint a fungible
+// currency. The framework now nudges toward `coin_registry::new_currency_with_otw`,
+// but that changes the publish flow and the TreasuryCap handoff the rest of Splyt
+// (and the frozen interface) relies on, so we keep this and silence the notice.
+#[allow(deprecated_usage)]
 fun init(witness: PT, ctx: &mut TxContext) {
     let (treasury, metadata) = coin::create_currency(
         witness,

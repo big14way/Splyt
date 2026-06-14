@@ -17,6 +17,12 @@ export const NETWORK: Network = (process.env.SUI_NETWORK as Network) ?? 'testnet
 /** Quote coin to list PT/YT against. Testnet default is DeepBook's test USDC. */
 export const QUOTE_COIN_KEY = process.env.QUOTE_COIN_KEY ?? 'DBUSDC';
 
+/**
+ * Placeholder sender for read-only flows (devInspect views, DeepBook mids,
+ * order-book reads). These never sign, so no private key is required.
+ */
+export const READ_ONLY_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000000000';
+
 export const suiClient = new SuiJsonRpcClient({
   url: process.env.SUI_RPC_URL ?? getJsonRpcFullnodeUrl(NETWORK),
   network: NETWORK,

@@ -4,7 +4,7 @@
  *
  *   npm run deepbook:book
  */
-import { loadAddress } from '../env';
+import { READ_ONLY_ADDRESS } from '../env';
 import { buildSplytDeepBook, PT_POOL_KEY, YT_POOL_KEY } from './config';
 import { getOrderBook } from './trade';
 
@@ -21,7 +21,7 @@ function printBook(label: string, book: Awaited<ReturnType<typeof getOrderBook>>
 }
 
 async function main() {
-  const { db } = buildSplytDeepBook(loadAddress());
+  const { db } = buildSplytDeepBook(READ_ONLY_ADDRESS);
   printBook('PT / USDC', await getOrderBook(db, PT_POOL_KEY));
   printBook('YT / USDC', await getOrderBook(db, YT_POOL_KEY));
 }

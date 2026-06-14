@@ -11,6 +11,9 @@ use sui::coin;
 /// One-time witness. Must match the module name in uppercase.
 public struct YT has drop {}
 
+// See the note in pt.move: `create_currency` is kept deliberately over the newer
+// coin_registry flow to preserve the TreasuryCap handoff used by market::create.
+#[allow(deprecated_usage)]
 fun init(witness: YT, ctx: &mut TxContext) {
     let (treasury, metadata) = coin::create_currency(
         witness,

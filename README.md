@@ -59,11 +59,16 @@ YT/USDC pools created by the listing script.
 
 ```bash
 # from the package root
-sui move build
+sui move build      # builds clean (no warnings)
+sui move test       # 6 unit tests: split/combine, lifecycle, pro-rata, guards
 
 # publish
 sui client publish --gas-budget 200000000
 ```
+
+The Move package builds and its tests pass against Sui framework `testnet` and
+OpenZeppelin math `v1.1.0` (pinned in `Move.lock`). The off-chain scripts have
+their own checks: `cd scripts && npm run typecheck && npm test`.
 
 On publish, `pt::init` and `yt::init` run automatically and send both
 TreasuryCaps to your address. Then create the market (pick a maturity a few

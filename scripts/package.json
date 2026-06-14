@@ -6,6 +6,7 @@
   "description": "Off-chain scripts for Splyt: DeepBook listing/seed/trade and the Walrus yield-curve writer.",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "deepbook:pools": "tsx src/deepbook/createPools.ts",
     "deepbook:mint": "tsx src/deepbook/mint.ts",
     "deepbook:seed": "tsx src/deepbook/seed.ts",

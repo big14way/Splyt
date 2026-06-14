@@ -9,7 +9,7 @@
  *   npm run walrus:snapshot
  */
 import { fileURLToPath } from 'node:url';
-import { loadAddress } from '../env';
+import { READ_ONLY_ADDRESS } from '../env';
 import { loadDeployment, updateDeployment } from '../deployment';
 import { buildSplytDeepBook, PT_POOL_KEY, YT_POOL_KEY } from '../deepbook/config';
 import type { DeepBookClient } from '@mysten/deepbook-v3';
@@ -49,7 +49,9 @@ export interface SnapshotResult {
 }
 
 export async function takeSnapshot(): Promise<SnapshotResult> {
-  const { db } = buildSplytDeepBook(loadAddress());
+  // Read-only: market views, DeepBook mids, and Walrus PUT need no signer. Only
+  // the optional on-chain commit (below) loads the keypair.
+  const { db } = buildSplytDeepBook(READ_ONLY_ADDRESS);
 
   const [state, ptMid, ytMid] = await Promise.all([
     readMarketState(),
