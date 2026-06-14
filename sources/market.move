@@ -23,9 +23,11 @@ use openzeppelin_math::rounding;
 use openzeppelin_math::u64 as ozu64;
 use splyt::pt::PT;
 use splyt::yt::YT;
+use std::string::{Self, String};
 use sui::balance::{Self, Balance};
 use sui::clock::Clock;
 use sui::coin::{Self, Coin, TreasuryCap};
+use sui::event;
 
 // === Errors ===
 const ENotMatured: u64 = 0;
@@ -39,6 +41,14 @@ const EZeroAmount: u64 = 4;
 /// Authority to credit yield into a market. Held by the deployer or a keeper.
 public struct AdminCap has key, store {
     id: UID,
+}
+
+/// Emitted when the keeper commits a new Walrus yield-history blob id. Lets an
+/// indexer or the frontend discover the latest verifiable history without
+/// polling the object.
+public struct YieldHistoryUpdated has copy, drop {
+    market: ID,
+    blob_id: String,
 }
 
 /// A single yield-tokenization market over underlying coin `U`.
@@ -57,6 +67,9 @@ public struct Market<phantom U> has key {
     final_yield: u64,
     /// Snapshot of YT supply taken at settlement.
     final_yt_supply: u64,
+    /// Latest Walrus blob id holding the off-chain yield-curve history. Empty
+    /// until the keeper commits one via `set_yield_history_blob`.
+    yield_history_blob: String,
 }
 
 // === Lifecycle ===
@@ -79,6 +92,7 @@ public fun create<U>(
         matured: false,
         final_yield: 0,
         final_yt_supply: 0,
+        yield_history_blob: string::utf8(b""),
     };
     transfer::share_object(market);
     AdminCap { id: object::new(ctx) }
@@ -159,6 +173,23 @@ public fun combine<U>(
 public fun accrue<U>(market: &mut Market<U>, _admin: &AdminCap, yield_in: Coin<U>) {
     assert!(!market.matured, EAlreadyMatured);
     market.yield_pool.join(yield_in.into_balance());
+}
+
+/// Record the latest Walrus blob id for the off-chain yield-curve history.
+/// Admin-gated so the committed id is trustworthy, then stored on the market and
+/// emitted as an event. This is the on-chain anchor that makes the Walrus
+/// history verifiable: the frontend reads this id and fetches the content-
+/// addressed series from a Walrus aggregator.
+public fun set_yield_history_blob<U>(
+    market: &mut Market<U>,
+    _admin: &AdminCap,
+    blob_id: vector<u8>,
+) {
+    market.yield_history_blob = string::utf8(blob_id);
+    event::emit(YieldHistoryUpdated {
+        market: object::id(market),
+        blob_id: market.yield_history_blob,
+    });
 }
 
 /// Settle the market once maturity is reached. Snapshots the total yield and the
@@ -242,3 +273,5 @@ public fun yt_supply<U>(m: &Market<U>): u64 { m.yt_cap.total_supply() }
 public fun final_yield<U>(m: &Market<U>): u64 { m.final_yield }
 
 public fun final_yt_supply<U>(m: &Market<U>): u64 { m.final_yt_supply }
+
+public fun yield_history_blob<U>(m: &Market<U>): String { m.yield_history_blob }

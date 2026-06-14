@@ -6,7 +6,7 @@ tooling and (next) the Walrus yield-curve writer. Frontend is a separate track.
 - `@mysten/sui` **v2** (note: v2 moved the client to `@mysten/sui/jsonRpc` —
   `SuiJsonRpcClient` / `getJsonRpcFullnodeUrl`, not the old `SuiClient`).
 - `@mysten/deepbook-v3` for `DeepBookClient`.
-- `@mysten/walrus` + plain HTTP for the keeper.
+- Plain HTTP against the Walrus testnet publisher/aggregator for the keeper.
 
 ## Setup
 
@@ -58,6 +58,35 @@ created once and cached in `deployment.json`).
   `cancelOrder(...)`, and `getOrderBook(pool)` for rendering bids/asks.
 - Pool keys: `PT_USDC`, `YT_USDC`. Pool ids land in `deployment.json`.
 
+## Walrus: verifiable yield-curve history
+
+Spec: [`../docs/WALRUS_INTEGRATION.md`](../docs/WALRUS_INTEGRATION.md).
+
+The keeper reads market state (devInspect view functions) and the DeepBook mids,
+computes one `{ t, impliedApy, underlyingIndex, ptMid, ytMid }` point, appends it
+to a rolling series seeded from the previous Walrus blob, and stores the new
+series on Walrus. The latest blob id is written to `deployment.json`.
+
+```bash
+# one snapshot (good for cron or a manual demo step)
+npm run walrus:snapshot
+
+# continuous keeper (every KEEPER_INTERVAL_SECONDS)
+npm run walrus:keeper
+```
+
+**On-chain verifiability.** With `COMMIT_ON_CHAIN=true` (and `adminCapId` set),
+each snapshot also calls the admin-gated `market::set_yield_history_blob`, which
+stores the blob id on the Market and emits `YieldHistoryUpdated`. The frontend
+reads the id from chain (view `yield_history_blob`) and fetches the content-
+addressed series from the aggregator — a history nobody could fabricate
+server-side. Without the flag, the keeper still works and just publishes the id
+via `deployment.json`.
+
+`impliedApy` is derived from the PT mid and time to maturity; `underlyingIndex`
+is an on-chain accrual proxy (`1 + yield/principal`), ready to swap for a real
+Scallop/LST index.
+
 ## Files
 
 ```
@@ -72,4 +101,11 @@ src/
     seed.ts         # npm run deepbook:seed
     showBook.ts     # npm run deepbook:book
     trade.ts        # frontend handoff: placeOrder / cancelOrder / getOrderBook
+  walrus/
+    walrus.ts       # storeBlob / readBlob / aggregatorUrl (HTTP)
+    market.ts       # readMarketState() via devInspect view functions
+    compute.ts      # computeYieldPoint() (pure)
+    commit.ts       # commitBlobOnChain() via market::set_yield_history_blob
+    snapshot.ts     # npm run walrus:snapshot (takeSnapshot)
+    keeper.ts       # npm run walrus:keeper
 ```

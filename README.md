@@ -45,8 +45,11 @@ Build PTBs with `@mysten/sui` and call:
 
 Read state for the dashboard via the view functions (devInspect or an indexer):
 `maturity_ms`, `is_matured`, `principal_value`, `yield_value`, `pt_supply`,
-`yt_supply`, `final_yield`, `final_yt_supply`. Replace `<U>` with the fully
-qualified underlying coin type, for example `0x...::usdc::USDC`.
+`yt_supply`, `final_yield`, `final_yt_supply`, `yield_history_blob`. Replace
+`<U>` with the fully qualified underlying coin type, for example
+`0x...::usdc::USDC`. `yield_history_blob` returns the latest Walrus blob id
+committed by the keeper (empty until set) — fetch the series from a Walrus
+aggregator at `/v1/blobs/<blobId>`.
 
 Trading PT and YT is a DeepBook concern, not a Splyt call: the UI uses the
 DeepBook v3 SDK (`placeLimitOrder`, `placeMarketOrder`) against the PT/USDC and

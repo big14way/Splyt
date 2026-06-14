@@ -16,7 +16,6 @@
   "dependencies": {
     "@mysten/deepbook-v3": "^1.4.1",
     "@mysten/sui": "^2.17.0",
-    "@mysten/walrus": "^1.1.7",
     "dotenv": "^16.4.7"
   },
   "devDependencies": {
