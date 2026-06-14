@@ -7,7 +7,9 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test \"src/**/*.test.ts\"",
+    "accrue": "tsx src/accrue.ts",
     "deepbook:pools": "tsx src/deepbook/createPools.ts",
+    "deepbook:bm": "tsx src/deepbook/createBalanceManager.ts",
     "deepbook:mint": "tsx src/deepbook/mint.ts",
     "deepbook:seed": "tsx src/deepbook/seed.ts",
     "deepbook:book": "tsx src/deepbook/showBook.ts",

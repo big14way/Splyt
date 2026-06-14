@@ -29,20 +29,31 @@ Spec: [`../docs/DEEPBOOK_INTEGRATION.md`](../docs/DEEPBOOK_INTEGRATION.md).
 Prereqs: the seeder address holds testnet **DEEP** (pool creation fee + optional
 trade fees) and some **quote** (DBUSDC). Mint PT/YT inventory from the market.
 
+> Heads-up on testnet DEEP: permissionless pool creation costs **exactly 500 DEEP
+> per pool** (asserted on-chain). DEEP is not mintable, and the `DEEP_SUI` pool
+> only holds ~20 DEEP, so sourcing the 1000 DEEP for both pools on testnet needs a
+> DeepBook grant. `deepbook:bm` (BalanceManager) and the read helpers need no DEEP
+> and work today; on mainnet DEEP is liquid and the full flow runs end to end.
+
 ```bash
-# 1) create the PT/USDC and YT/USDC permissionless pools (records ids)
+# 0) create the seeder BalanceManager (no DEEP needed — works today)
+npm run deepbook:bm
+
+# 1) create the PT/USDC and YT/USDC permissionless pools (records ids; needs DEEP)
 npm run deepbook:pools
 
 # 2) mint PT + YT inventory for the seeder (calls market::split_for_sender)
 #    set MINT_AMOUNT_BASE in .env first
 npm run deepbook:mint
 
-# 3) create the seeder BalanceManager, deposit PT/YT/quote, post maker orders
+# 3) deposit PT/YT/quote into the BalanceManager and post maker orders
 npm run deepbook:seed
 
 # 4) inspect both books
 npm run deepbook:book
 ```
+
+Credit demo yield any time with `npm run accrue` (set `ACCRUE_AMOUNT_BASE`).
 
 Each step is idempotent where it matters (pools and the balance manager are
 created once and cached in `deployment.json`).
@@ -94,8 +105,10 @@ src/
   env.ts            # network, SuiJsonRpcClient, signer
   deployment.ts     # read/write deployment.json
   execute.ts        # sign+execute+await, mine created-object ids
+  accrue.ts         # npm run accrue (admin-gated market::accrue)
   deepbook/
     config.ts       # buildSplytDeepBook(): PT/YT coins + PT_USDC/YT_USDC pools
+    createBalanceManager.ts  # npm run deepbook:bm
     createPools.ts  # npm run deepbook:pools
     mint.ts         # npm run deepbook:mint
     seed.ts         # npm run deepbook:seed

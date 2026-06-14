@@ -62,13 +62,17 @@ YT/USDC pools created by the listing script.
 sui move build      # builds clean (no warnings)
 sui move test       # 6 unit tests: split/combine, lifecycle, pro-rata, guards
 
-# publish
-sui client publish --gas-budget 200000000
+# publish (OZ math has no published-at, so bundle it; --gas-budget ~0.5 SUI)
+sui client publish --gas-budget 500000000 --with-unpublished-dependencies
 ```
 
 The Move package builds and its tests pass against Sui framework `testnet` and
 OpenZeppelin math `v1.1.0` (pinned in `Move.lock`). The off-chain scripts have
 their own checks: `cd scripts && npm run typecheck && npm test`.
+
+> `--with-unpublished-dependencies` is required because the OpenZeppelin math
+> dependency ships no `published-at`, so Sui bundles it into our publish. We
+> still genuinely depend on and call `openzeppelin_math::u64::mul_div`.
 
 On publish, `pt::init` and `yt::init` run automatically and send both
 TreasuryCaps to your address. Then create the market (pick a maturity a few
@@ -81,6 +85,31 @@ sui client call \
   --args <PT_TREASURY_CAP_ID> <YT_TREASURY_CAP_ID> <MATURITY_MS> \
   --gas-budget 50000000
 ```
+
+## Live testnet deployment
+
+Current deployment the frontend integrates against (network: **testnet**, `<U> = 0x2::sui::SUI`):
+
+| What | Id |
+|---|---|
+| Package (`PKG`) | `0xe0ad60d2540ab6fedd51d04817c44c9fe37cc0483e0026687fc07b85eb33ab11` |
+| Market (`MARKET`) | `0xe82e58af575fc122287bc1b9fde81fff0de86bca7b292f0198206861e02dd46d` |
+| AdminCap | `0x466bf089ce66d072c1955622da5bfb8e63556f13b822adfa3ccc64646d88f154` |
+| Seeder BalanceManager | `0x51f0c029ee3e97b634cebb6cda55e490b324d4d636056d826bf0719aa57435f3` |
+| PT type | `PKG::pt::PT` · YT type `PKG::yt::YT` (both 9 decimals) |
+| Yield history (Walrus) | read the `yield_history_blob` view on the Market, then fetch `AGGREGATOR/v1/blobs/<id>` |
+
+Live and verified on-chain: `split`/`combine`/`accrue`, the `market::*` views, and
+the Walrus yield history (blob id committed on-chain via `set_yield_history_blob`,
+content fetchable from the aggregator). The keeper is running snapshots.
+
+**DeepBook pools are not yet created.** Permissionless pool creation costs a fixed
+**500 DEEP per pool** (asserted exactly, on-chain), and testnet DEEP is scarce —
+it is not mintable and the `DEEP_SUI` pool holds only ~20 DEEP, so the 1000 DEEP
+for both pools can't be sourced on testnet right now. The listing scripts are
+written, type-checked, and the read path (`getOrderBook`) is verified against live
+DeepBook pools. Once DEEP is available (a DeepBook testnet grant, or on mainnet),
+`npm run deepbook:pools && deepbook:mint && deepbook:seed` creates and seeds them.
 
 ## Demo flow
 

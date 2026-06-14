@@ -26,22 +26,30 @@ async function main() {
   if (amount <= 0n) throw new Error('Set MINT_AMOUNT_BASE (raw base units of the underlying) in .env.');
 
   const address = loadAddress();
-  const { data: coins } = await suiClient.getCoins({ owner: address, coinType: d.underlyingType });
-  if (coins.length === 0) throw new Error(`No ${d.underlyingType} coins in ${address}.`);
-
-  const total = coins.reduce((acc, c) => acc + BigInt(c.balance), 0n);
-  if (total < amount) {
-    throw new Error(`Insufficient underlying: have ${total}, need ${amount} base units.`);
-  }
+  // SUI is both gas and (here) the underlying, so we can't consume every SUI
+  // coin as an input — split the deposit straight off the gas coin and let the
+  // remainder pay gas.
+  const isSui = d.underlyingType.replace(/^0x0+/, '0x') === '0x2::sui::SUI';
 
   const tx = new Transaction();
-  // Consolidate into the first coin, then split off the exact deposit amount.
-  const [primary, ...rest] = coins;
-  const primaryArg = tx.object(primary.coinObjectId);
-  if (rest.length > 0) {
-    tx.mergeCoins(primaryArg, rest.map((c) => tx.object(c.coinObjectId)));
+  let deposit;
+  if (isSui) {
+    [deposit] = tx.splitCoins(tx.gas, [tx.pure.u64(amount)]);
+  } else {
+    const { data: coins } = await suiClient.getCoins({ owner: address, coinType: d.underlyingType });
+    if (coins.length === 0) throw new Error(`No ${d.underlyingType} coins in ${address}.`);
+    const total = coins.reduce((acc, c) => acc + BigInt(c.balance), 0n);
+    if (total < amount) {
+      throw new Error(`Insufficient underlying: have ${total}, need ${amount} base units.`);
+    }
+    // Consolidate into the first coin, then split off the exact deposit amount.
+    const [primary, ...rest] = coins;
+    const primaryArg = tx.object(primary.coinObjectId);
+    if (rest.length > 0) {
+      tx.mergeCoins(primaryArg, rest.map((c) => tx.object(c.coinObjectId)));
+    }
+    [deposit] = tx.splitCoins(primaryArg, [tx.pure.u64(amount)]);
   }
-  const [deposit] = tx.splitCoins(primaryArg, [tx.pure.u64(amount)]);
 
   tx.moveCall({
     target: `${pkg}::market::split_for_sender`,
