@@ -79,40 +79,57 @@ export function buildCombine({
   return tx;
 }
 
-/** Redeem PT post-maturity. Caller passes the merged PT primary; amount = full coin value. */
-export function buildRedeemPt(ptCoinIds: string[]): Transaction {
-  if (ptCoinIds.length === 0) throw new Error("buildRedeemPt: no PT coins");
+/**
+ * Settle the market once the clock has passed maturity. Anyone can call this;
+ * it's a one-shot toggle that snapshots final_yield and final_yt_supply so
+ * subsequent redeem_yt payouts are fair regardless of order.
+ */
+export function buildMature(): Transaction {
   const tx = new Transaction();
-  const primary = tx.object(ptCoinIds[0]!);
-  if (ptCoinIds.length > 1) {
-    tx.mergeCoins(
-      primary,
-      ptCoinIds.slice(1).map((id) => tx.object(id)),
-    );
-  }
   tx.moveCall({
-    target: `${PKG}::market::redeem_pt_for_sender`,
+    target: `${PKG}::market::mature`,
     typeArguments: [UNDERLYING_TYPE],
-    arguments: [tx.object(MARKET), primary],
+    arguments: [tx.object(MARKET), tx.object(CLOCK)],
   });
   return tx;
 }
 
-/** Redeem YT post-maturity, same pattern as PT. */
-export function buildRedeemYt(ytCoinIds: string[]): Transaction {
-  if (ytCoinIds.length === 0) throw new Error("buildRedeemYt: no YT coins");
-  const tx = new Transaction();
-  const primary = tx.object(ytCoinIds[0]!);
-  if (ytCoinIds.length > 1) {
+/** Merge a list of coin objects into the first one and return the primary arg. */
+function mergePrimary(tx: Transaction, coinIds: string[]) {
+  const primary = tx.object(coinIds[0]!);
+  if (coinIds.length > 1) {
     tx.mergeCoins(
       primary,
-      ytCoinIds.slice(1).map((id) => tx.object(id)),
+      coinIds.slice(1).map((id) => tx.object(id)),
     );
   }
+  return primary;
+}
+
+/** Redeem PT post-maturity. Splits `amount` off the merged PT primary. */
+export function buildRedeemPt(ptCoinIds: string[], amount: bigint): Transaction {
+  if (ptCoinIds.length === 0) throw new Error("buildRedeemPt: no PT coins");
+  const tx = new Transaction();
+  const primary = mergePrimary(tx, ptCoinIds);
+  const [redeem] = tx.splitCoins(primary, [tx.pure.u64(amount)]);
+  tx.moveCall({
+    target: `${PKG}::market::redeem_pt_for_sender`,
+    typeArguments: [UNDERLYING_TYPE],
+    arguments: [tx.object(MARKET), redeem],
+  });
+  return tx;
+}
+
+/** Redeem YT post-maturity. Splits `amount` off the merged YT primary. */
+export function buildRedeemYt(ytCoinIds: string[], amount: bigint): Transaction {
+  if (ytCoinIds.length === 0) throw new Error("buildRedeemYt: no YT coins");
+  const tx = new Transaction();
+  const primary = mergePrimary(tx, ytCoinIds);
+  const [redeem] = tx.splitCoins(primary, [tx.pure.u64(amount)]);
   tx.moveCall({
     target: `${PKG}::market::redeem_yt_for_sender`,
     typeArguments: [UNDERLYING_TYPE],
-    arguments: [tx.object(MARKET), primary],
+    arguments: [tx.object(MARKET), redeem],
   });
   return tx;
 }
