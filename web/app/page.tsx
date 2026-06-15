@@ -1,4 +1,6 @@
-import { Card, CardTitle, StatNumber } from "@/components/Card";
+import { Card } from "@/components/Card";
+import { MarketStats } from "@/components/MarketStats";
+import { SplitPanel } from "@/components/SplitPanel";
 import { MARKET, PKG, UNDERLYING_SYMBOL, EXPLORER } from "@/lib/config";
 
 function short(id: string) {
@@ -46,35 +48,21 @@ export default function MarketsPage() {
                 </a>
               </div>
             </div>
-            <span className="text-[11px] font-medium uppercase tracking-wider px-2 py-1 rounded-md border border-border bg-surface-2 text-pos">
-              Active
-            </span>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-4">
-            <Card className="bg-surface-2">
-              <CardTitle>TVL (principal)</CardTitle>
-              <StatNumber>—</StatNumber>
-              <div className="text-[12px] text-text-dim mt-1">
-                {UNDERLYING_SYMBOL}
-              </div>
-            </Card>
-            <Card className="bg-surface-2">
-              <CardTitle>Accrued yield</CardTitle>
-              <StatNumber>—</StatNumber>
-              <div className="text-[12px] text-text-dim mt-1">
-                {UNDERLYING_SYMBOL}
-              </div>
-            </Card>
-            <Card className="bg-surface-2">
-              <CardTitle>Implied fixed APY</CardTitle>
-              <StatNumber>—</StatNumber>
-              <div className="text-[12px] text-text-dim mt-1">from PT mid</div>
-            </Card>
-          </div>
+          <MarketStats />
+        </Card>
+      </section>
 
-          <div className="text-[12px] text-text-dim">
-            Split, Combine, and the yield-curve chart land here next.
+      <section className="grid lg:grid-cols-2 gap-6">
+        <SplitPanel />
+        <Card className="space-y-2">
+          <div className="text-[12px] uppercase tracking-wider text-text-dim font-medium">
+            Yield curve
+          </div>
+          <div className="text-[13px] text-text-dim">
+            Verifiable history from Walrus lands here next — the keeper is
+            already snapshotting, we just need to plug the chart in.
           </div>
         </Card>
       </section>
