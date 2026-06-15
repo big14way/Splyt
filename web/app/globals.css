@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0f1e;
+  --surface: #111a2e;
+  --surface-2: #16213c;
+  --border: #1e2c49;
+  --text: #e8eef9;
+  --text-dim: #8a9abf;
+  --sui: #4da2ff;
+  --sui-deep: #2e7de0;
+  --teal: #38d6c8;
+  --pt: #4da2ff;
+  --yt: #38d6c8;
+  --pos: #2ee6a8;
+  --neg: #ff6b6b;
+  --warn: #ffb454;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-feature-settings: "cv11", "ss01";
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* dapp-kit modal styles imported from package */
