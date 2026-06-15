@@ -10,9 +10,11 @@ import { MARKET, PKG, UNDERLYING_TYPE } from "./config";
 const ZERO_ADDR =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
 const U64 = bcs.u64();
+const STRING = bcs.string();
 
 const decodeU64 = (bytes: number[]): bigint => BigInt(U64.parse(Uint8Array.from(bytes)));
 const decodeBool = (bytes: number[]): boolean => bytes[0] === 1;
+const decodeString = (bytes: number[]): string => STRING.parse(Uint8Array.from(bytes));
 
 async function callView(client: SuiJsonRpcClient, fn: string): Promise<number[]> {
   const tx = new Transaction();
@@ -41,6 +43,8 @@ export interface MarketState {
   ytSupply: bigint;
   finalYield: bigint;
   finalYtSupply: bigint;
+  /** Latest Walrus blob id committed by the keeper (empty string until first commit). */
+  yieldHistoryBlob: string;
 }
 
 export async function readMarketState(
@@ -55,6 +59,7 @@ export async function readMarketState(
     ytSupply,
     finalYield,
     finalYtSupply,
+    yieldHistoryBlob,
   ] = await Promise.all([
     callView(client, "maturity_ms").then(decodeU64),
     callView(client, "is_matured").then(decodeBool),
@@ -64,6 +69,7 @@ export async function readMarketState(
     callView(client, "yt_supply").then(decodeU64),
     callView(client, "final_yield").then(decodeU64),
     callView(client, "final_yt_supply").then(decodeU64),
+    callView(client, "yield_history_blob").then(decodeString),
   ]);
   return {
     maturityMs,
@@ -74,5 +80,6 @@ export async function readMarketState(
     ytSupply,
     finalYield,
     finalYtSupply,
+    yieldHistoryBlob,
   };
 }

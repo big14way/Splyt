@@ -1,6 +1,7 @@
 import { Card } from "@/components/Card";
 import { MarketStats } from "@/components/MarketStats";
 import { SplitPanel } from "@/components/SplitPanel";
+import { YieldChart } from "@/components/YieldChart";
 import { MARKET, PKG, UNDERLYING_SYMBOL, EXPLORER } from "@/lib/config";
 
 function short(id: string) {
@@ -54,15 +55,20 @@ export default function MarketsPage() {
         </Card>
       </section>
 
+      <section>
+        <YieldChart />
+      </section>
+
       <section className="grid lg:grid-cols-2 gap-6">
         <SplitPanel />
         <Card className="space-y-2">
           <div className="text-[12px] uppercase tracking-wider text-text-dim font-medium">
-            Yield curve
+            Trade PT &amp; YT
           </div>
           <div className="text-[13px] text-text-dim">
-            Verifiable history from Walrus lands here next — the keeper is
-            already snapshotting, we just need to plug the chart in.
+            DeepBook trade panel lands in the next slice. PT/USDC and YT/USDC
+            pools are pending DEEP on testnet — the trade helpers are already
+            wired in <span className="font-mono">scripts/src/deepbook</span>.
           </div>
         </Card>
       </section>
