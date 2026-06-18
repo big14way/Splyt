@@ -16,10 +16,12 @@ import {
   buildCancelOrder,
   buildCreateBalanceManager,
   buildPlaceOrder,
+  buildWithdrawAll,
   type Side,
 } from "@/lib/trade";
 import { findPool } from "@/lib/pools";
 import { useBalanceManager } from "@/hooks/useBalanceManager";
+import { useManagerBalances } from "@/hooks/useManagerBalances";
 import { useOpenOrders } from "@/hooks/useOpenOrders";
 import { useOrderBook } from "@/hooks/useOrderBook";
 import { usePoolParams } from "@/hooks/usePoolParams";
@@ -55,6 +57,7 @@ export function TradeForm({ poolKey }: { poolKey: string }) {
   const bmQ = useBalanceManager();
   const paramsQ = usePoolParams(poolKey);
   const ordersQ = useOpenOrders(poolKey, bmQ.data);
+  const mgrBalQ = useManagerBalances(poolKey, bmQ.data);
   const { mutate: signAndExecute, isPending } = useSignAndExecuteTransaction();
 
   const [side, setSide] = useState<Side>("buy");
@@ -178,6 +181,11 @@ export function TradeForm({ poolKey }: { poolKey: string }) {
     run(buildCancelOrder(client, account.address, bmQ.data, poolKey, orderId));
   }
 
+  function onWithdraw(coinKey: string) {
+    if (!account || !bmQ.data || isPending) return;
+    run(buildWithdrawAll(client, account.address, bmQ.data, coinKey));
+  }
+
   function onSideChange(next: Side) {
     setSide(next);
     if (!price && book?.mid) {
@@ -187,6 +195,7 @@ export function TradeForm({ poolKey }: { poolKey: string }) {
 
   const total = validInputs ? (numPrice * numSize).toFixed(4) : "—";
   const openOrders = ordersQ.data ?? [];
+  const managerBalances = mgrBalQ.data ?? [];
 
   return (
     <Card className="space-y-4">
@@ -262,6 +271,35 @@ export function TradeForm({ poolKey }: { poolKey: string }) {
                 className="text-neg hover:underline disabled:opacity-40 text-[12px]"
               >
                 Cancel
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hasBm && managerBalances.length > 0 && (
+        <div className="space-y-2 border-t border-border pt-3">
+          <div className="flex items-center justify-between">
+            <div className="text-[12px] uppercase tracking-wider text-text-dim font-medium">
+              In your balance manager
+            </div>
+            <span className="text-[11px] text-text-dim">withdraw to wallet</span>
+          </div>
+          {managerBalances.map((b) => (
+            <div
+              key={b.coinKey}
+              className="flex items-center justify-between rounded-btn bg-surface-2/60 border border-border px-3 h-10 text-[13px]"
+            >
+              <span className="font-mono tabular text-text">
+                {b.balance} <span className="text-text-dim">{b.coinKey}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => onWithdraw(b.coinKey)}
+                disabled={isPending}
+                className="text-sui hover:underline disabled:opacity-40 text-[12px]"
+              >
+                Withdraw
               </button>
             </div>
           ))}

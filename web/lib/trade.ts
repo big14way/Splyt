@@ -86,3 +86,16 @@ export function buildCancelOrder(
   db.deepBook.cancelOrder(poolKey, USER_BM_KEY, orderId)(tx);
   return tx;
 }
+
+/** Withdraw the full balance of `coinKey` from the manager back to the wallet. */
+export function buildWithdrawAll(
+  client: SuiJsonRpcClient,
+  address: string,
+  balanceManagerId: string,
+  coinKey: string,
+): Transaction {
+  const db = buildDeepBook(client, address, balanceManagerId);
+  const tx = new Transaction();
+  db.balanceManager.withdrawAllFromManager(USER_BM_KEY, coinKey, address)(tx);
+  return tx;
+}

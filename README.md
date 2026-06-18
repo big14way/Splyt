@@ -123,15 +123,39 @@ npm run deepbook:mint    # mint PT/YT inventory
 npm run deepbook:seed    # deposit + maker orders
 ```
 
+## The web app
+
+A Next.js 14 app in [`web/`](web/) drives the whole product: connect wallet,
+Split, Combine, Trade (place/cancel/withdraw on DeepBook), Redeem, and the
+Walrus yield-curve chart. It reads live ids from [`web/lib/config.ts`](web/lib/config.ts).
+
+```bash
+cd web && npm install && npm run dev   # http://localhost:3000
+```
+
 ## Demo flow
 
-1. `split_for_sender` a deposit of `U`, show equal PT and YT minted.
-2. List PT/USDC and YT/USDC on DeepBook, seed a few maker orders, trade one of
-   each. PT sits below par (implied fixed yield), YT prices the yield.
-3. `accrue` yield via the AdminCap keeper a few times. The Walrus writer
-   snapshots the implied APY each step.
-4. After maturity, `mature`, then `redeem_pt` for principal and `redeem_yt` for
-   the pro-rata yield share. Show the Walrus-backed yield history chart.
+The live market matures ~30 days out, so split/combine/trade/chart can be
+demoed any time on it. To show the **redeem lifecycle** on camera without
+waiting, deploy a fresh short-maturity market first:
+
+```bash
+# deployer wallet needs ~1.5 testnet SUI (faucet.sui.io)
+./scripts/new-demo-market.sh 12     # market matures in 12 min; rewrites web/lib/config.ts
+cd web && npm run dev                # restart the app on the new market
+# …record, then: git checkout web/lib/config.ts   # restore the stable market
+```
+
+Then walk the app:
+
+1. **Split** a SUI deposit → equal PT + YT minted (TVL rises).
+2. **Trade** PT/YT — runs on the live DEEP/SUI pool today; PT/USDC + YT/USDC
+   show "Awaiting pool" until testnet DEEP is available. Place, then cancel, an order.
+3. **Combine** equal PT + YT back into SUI before maturity.
+4. The keeper `accrue`s yield and snapshots the Walrus curve each step — show the
+   rising **yield index** and the verifiable "Stored on Walrus" badge.
+5. After maturity, **Settle**, then **Redeem PT** for principal and **Redeem YT**
+   for the pro-rata yield.
 
 ## Notes and known simplifications
 

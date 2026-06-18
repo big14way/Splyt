@@ -95,7 +95,7 @@ export function MarketStats() {
         <Card className="bg-surface-2">
           <CardTitle>Implied fixed APY</CardTitle>
           <StatNumber>—</StatNumber>
-          <div className="text-[12px] text-text-dim mt-1">from PT mid</div>
+          <div className="text-[12px] text-text-dim mt-1">awaiting PT pool</div>
         </Card>
       </div>
     </div>

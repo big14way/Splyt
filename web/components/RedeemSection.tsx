@@ -59,6 +59,7 @@ export function RedeemSection() {
         onSuccess: (res) => {
           setSettleDigest(res.digest);
           queryClient.invalidateQueries({ queryKey: ["splyt"] });
+          queryClient.invalidateQueries({ queryKey: ["@mysten/dapp-kit"] });
         },
         onError: (e) => setSettleError(e.message),
       },

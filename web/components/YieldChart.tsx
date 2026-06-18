@@ -30,6 +30,7 @@ function fmtTime(t: number, includeDate = false): string {
 
 interface ChartRow {
   t: number;
+  index: number;
   apy: number;
   ptMid: number | null;
   ytMid: number | null;
@@ -38,6 +39,7 @@ interface ChartRow {
 function toRows(series: YieldPoint[]): ChartRow[] {
   return series.map((p) => ({
     t: p.t,
+    index: p.underlyingIndex,
     apy: p.impliedApy,
     ptMid: p.ptMid,
     ytMid: p.ytMid,
@@ -61,6 +63,10 @@ function ChartTooltip({
   return (
     <div className="rounded-md border border-border bg-bg/90 backdrop-blur px-3 py-2 text-[12px] shadow-md">
       <div className="text-text-dim mb-1">{fmtTime(row.t, true)}</div>
+      <div className="flex items-center justify-between gap-4 font-mono tabular">
+        <span className="text-text-dim">Yield index</span>
+        <span className="text-text">{row.index.toFixed(4)}</span>
+      </div>
       <div className="flex items-center justify-between gap-4 font-mono tabular">
         <span className="text-text-dim">Implied APY</span>
         <span className="text-text">{fmtPct(row.apy, 3)}</span>
@@ -91,6 +97,19 @@ export function YieldChart() {
   const latest = rows.length > 0 ? rows[rows.length - 1] : null;
   const blobShort = data ? `${data.blobId.slice(0, 8)}…${data.blobId.slice(-6)}` : null;
 
+  // Tight, data-driven domain so a near-flat series doesn't auto-scale to 0–400%.
+  const domain = useMemo<[number, number]>(() => {
+    if (rows.length === 0) return [0.98, 1.02];
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (const r of rows) {
+      lo = Math.min(lo, r.index);
+      hi = Math.max(hi, r.index);
+    }
+    const pad = Math.max(0.01, (hi - lo) * 0.25);
+    return [Math.max(0, lo - pad), hi + pad];
+  }, [rows]);
+
   return (
     <Card className="space-y-4">
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -99,10 +118,12 @@ export function YieldChart() {
             Yield curve
           </div>
           <div className="mt-1 text-lg font-semibold font-mono tabular">
-            {latest ? fmtPct(latest.apy, 2) : "—"}
+            {latest ? latest.index.toFixed(4) : "—"}
           </div>
           <div className="text-[12px] text-text-dim">
-            {latest ? `Implied APY · last update ${fmtTime(latest.t, true)}` : "Implied APY · awaiting first snapshot"}
+            {latest
+              ? `Accrued yield index · last update ${fmtTime(latest.t, true)}`
+              : "Accrued yield index · awaiting first snapshot"}
           </div>
         </div>
         {data ? (
@@ -164,12 +185,13 @@ export function YieldChart() {
                 tickLine={false}
                 axisLine={false}
                 width={48}
-                tickFormatter={(v: number) => fmtPct(v, 1)}
+                domain={domain}
+                tickFormatter={(v: number) => v.toFixed(3)}
               />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--border)" }} />
               <Area
                 type="monotone"
-                dataKey="apy"
+                dataKey="index"
                 stroke={SUI_BLUE}
                 strokeWidth={2}
                 fill="url(#apy-fill)"

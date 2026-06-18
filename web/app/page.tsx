@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card } from "@/components/Card";
 import { MarketStats } from "@/components/MarketStats";
 import { SplitPanel } from "@/components/SplitPanel";
@@ -61,15 +62,22 @@ export default function MarketsPage() {
 
       <section className="grid lg:grid-cols-2 gap-6">
         <SplitPanel />
-        <Card className="space-y-2">
+        <Card className="space-y-3">
           <div className="text-[12px] uppercase tracking-wider text-text-dim font-medium">
             Trade PT &amp; YT
           </div>
           <div className="text-[13px] text-text-dim">
-            DeepBook trade panel lands in the next slice. PT/USDC and YT/USDC
-            pools are pending DEEP on testnet — the trade helpers are already
-            wired in <span className="font-mono">scripts/src/deepbook</span>.
+            Trade PT and YT on DeepBook v3 — place and cancel live limit orders,
+            with deposits and withdrawals to your BalanceManager. PT/USDC and
+            YT/USDC pools await testnet DEEP, so the panel runs on the live
+            DEEP/SUI pool today.
           </div>
+          <Link
+            href="/trade"
+            className="inline-flex items-center gap-2 text-[13px] text-sui hover:text-sui-deep font-medium"
+          >
+            Open the trade panel →
+          </Link>
         </Card>
       </section>
     </div>
