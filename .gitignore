@@ -4,6 +4,9 @@
 # Local agent/editor state
 .claude/
 
+# Demo/submission working files (kept local, not committed)
+submission/
+
 # Move build output
 build/
 
